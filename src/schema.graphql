@@ -1,0 +1,57 @@
+# import LinkSubscriptionPayload, Vote, VoteSubscriptionPayload, LinkOrderByInput, Notification from "./generated/prisma.graphql"
+
+type Query {
+    info: String!
+    feed(filter: String, skip: Int, first: Int, orderBy: LinkOrderByInput): Feed!
+    link(id: ID!): Link
+    notifications(memberNumber: String!, status: Status): [Notification!]!
+}
+
+type Mutation {
+    post(url: String!, description: String!): Link!
+    signup(email: String!, password: String!, name: String!): AuthPayload
+    login(email: String!, password: String!): AuthPayload
+    vote(linkId: ID!): Vote
+    notificateMember(memberNumber: String!, description: String!, status: String!, action: String!, priority: String!): Notification!
+    moveNotificationToHistory(id: ID!): Notification!
+}
+
+type Subscription {
+    newLink: LinkSubscriptionPayload
+    newVote: VoteSubscriptionPayload
+}
+
+type Link {
+    id: ID!
+    description: String!
+    url: String!
+    postedBy: User
+}
+
+type AuthPayload {
+    token: String
+    user: User
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    links: [Link!]!
+}
+
+type Feed {
+    links: [Link!]!
+    count: Int
+}
+
+enum Status {
+    NEW
+    HISTORY
+}
+
+enum Priority {
+    LOW
+    MEDIUM
+    HIGH
+}
