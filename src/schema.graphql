@@ -1,10 +1,12 @@
 # import LinkSubscriptionPayload, Vote, VoteSubscriptionPayload, LinkOrderByInput, Notification from "./generated/prisma.graphql"
+# import StatusEnum, PriorityEnum, NotificationDetail from "./generated/prisma.graphql"
 
 type Query {
     info: String!
     feed(filter: String, skip: Int, first: Int, orderBy: LinkOrderByInput): Feed!
     link(id: ID!): Link
     notifications(memberNumber: String!, status: Status): [Notification!]!
+    allNotifications : [Notification!]!
 }
 
 type Mutation {
@@ -12,8 +14,10 @@ type Mutation {
     signup(email: String!, password: String!, name: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload
     vote(linkId: ID!): Vote
-    notificateMember(memberNumber: String!, description: String!, status: String!, action: String!, priority: String!): Notification!
+    notificateMember(memberNumber: String!, status: StatusEnum!, code: String!): Notification!
+    createNotificationDetail(code: String!, description: String!, action: String!, priority: PriorityEnum!): NotificationDetail!
     moveNotificationToHistory(id: ID!): Notification!
+    deleteAllNotifications(memberNumber: String): String!
 }
 
 type Subscription {

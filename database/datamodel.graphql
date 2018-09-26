@@ -1,32 +1,53 @@
 type Link {
-  id: ID! @unique
-  description: String!
-  url: String!
-  postedBy: User
-  votes: [Vote!]!
+    id: ID! @unique
+    description: String!
+    url: String!
+    postedBy: User
+    votes: [Vote!]!
 }
 
 type User {
-  id: ID! @unique
-  name: String!
-  email: String! @unique
-  password: String!
-  links: [Link!]!
-  votes: [Vote!]!
+    id: ID! @unique
+    name: String!
+    email: String! @unique
+    password: String!
+    links: [Link!]!
+    votes: [Vote!]!
 }
 
 type Vote {
-  id: ID! @unique
-  link: Link!
-  user: User!
+    id: ID! @unique
+    link: Link!
+    user: User!
 }
 
 type Notification {
-  id: ID! @unique
-  memberNumber: String!
-  description: String!
-  status: String! 
-  action: String!
-  priority: String! 
-  readOn: DateTime
+    id: ID! @unique
+    memberNumber: String!
+    status: StatusEnum!
+    readOn: String
+    details: NotificationDetail!
+}
+
+type NotificationDetail {
+    code: String! @unique
+    description: String!
+    action: String
+    priority: PriorityEnum
+}
+
+type Notifications {
+    notifications: [Notification!]!
+    nextToken: String
+}
+
+enum PriorityEnum {
+    LOW
+    MEDIUM
+    HIGH
+}
+
+enum StatusEnum {
+    NEW
+    HISTORY
 }

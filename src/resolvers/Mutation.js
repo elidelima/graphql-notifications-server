@@ -57,18 +57,37 @@ function post(parent, args, context, info) {
 }
 
 async function notificateMember(parent, args, context, info) {
+
     return await context.db.mutation.createNotification(
         {
             data: {
                 memberNumber: args.memberNumber,
-                description: args.description,
                 status: args.status,
+                details: { connect: { code: args.code } },
+            },
+        },
+        info,
+    )
+}
+
+async function createNotificationDetail(parent, args, context, info) {
+    return await context.db.mutation.createNotificationDetail(
+        {
+            data: {
+                code: args.code,
                 action: args.action,
+                description: args.description,
                 priority: args.priority,
             },
         },
         info,
     )
+}
+
+async function deleteAllNotifications(parent, args, context, info) {
+    const where = { memberNumber: args.memberNumber }
+    const response = await context.db.mutation.deleteManyNotifications({where});
+    return `${response.count} registers deleted.`;
 }
 
 async function moveNotificationToHistory(parent, args, context, info) {
@@ -103,6 +122,8 @@ module.exports = {
     login,
     post,
     vote,
+    createNotificationDetail,
     notificateMember,
     moveNotificationToHistory,
+    deleteAllNotifications,
 }

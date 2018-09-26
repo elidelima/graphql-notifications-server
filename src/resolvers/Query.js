@@ -45,7 +45,12 @@ function notifications(parent, args, context, info){
     return context.db.query.notifications({ where }, info);
 }
 
+function allNotifications(parent, args, context, info){
+    return context.db.query.notifications({}, info);
+}
+
 module.exports = {
     feed,
     notifications,
+    allNotifications,
 }

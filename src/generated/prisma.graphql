@@ -1,11 +1,19 @@
 # source: https://eu1.prisma.sh/eli-lima/database/dev
-# timestamp: Fri Sep 21 2018 00:29:25 GMT-0300 (Hora oficial do Brasil)
+# timestamp: Wed Sep 26 2018 01:50:37 GMT-0300 (Hora oficial do Brasil)
 
 type AggregateLink {
   count: Int!
 }
 
 type AggregateNotification {
+  count: Int!
+}
+
+type AggregateNotificationDetail {
+  count: Int!
+}
+
+type AggregateNotifications {
   count: Int!
 }
 
@@ -22,13 +30,11 @@ type BatchPayload {
   count: Long!
 }
 
-scalar DateTime
-
 type Link implements Node {
   id: ID!
   description: String!
   url: String!
-  postedBy(where: UserWhereInput): User
+  postedBy: User
   votes(where: VoteWhereInput, orderBy: VoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Vote!]
 }
 
@@ -338,27 +344,36 @@ type Mutation {
   createLink(data: LinkCreateInput!): Link!
   createUser(data: UserCreateInput!): User!
   createVote(data: VoteCreateInput!): Vote!
+  createNotifications(data: NotificationsCreateInput!): Notifications!
   createNotification(data: NotificationCreateInput!): Notification!
+  createNotificationDetail(data: NotificationDetailCreateInput!): NotificationDetail!
   updateLink(data: LinkUpdateInput!, where: LinkWhereUniqueInput!): Link
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   updateVote(data: VoteUpdateInput!, where: VoteWhereUniqueInput!): Vote
   updateNotification(data: NotificationUpdateInput!, where: NotificationWhereUniqueInput!): Notification
+  updateNotificationDetail(data: NotificationDetailUpdateInput!, where: NotificationDetailWhereUniqueInput!): NotificationDetail
   deleteLink(where: LinkWhereUniqueInput!): Link
   deleteUser(where: UserWhereUniqueInput!): User
   deleteVote(where: VoteWhereUniqueInput!): Vote
   deleteNotification(where: NotificationWhereUniqueInput!): Notification
+  deleteNotificationDetail(where: NotificationDetailWhereUniqueInput!): NotificationDetail
   upsertLink(where: LinkWhereUniqueInput!, create: LinkCreateInput!, update: LinkUpdateInput!): Link!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   upsertVote(where: VoteWhereUniqueInput!, create: VoteCreateInput!, update: VoteUpdateInput!): Vote!
   upsertNotification(where: NotificationWhereUniqueInput!, create: NotificationCreateInput!, update: NotificationUpdateInput!): Notification!
+  upsertNotificationDetail(where: NotificationDetailWhereUniqueInput!, create: NotificationDetailCreateInput!, update: NotificationDetailUpdateInput!): NotificationDetail!
   updateManyLinks(data: LinkUpdateInput!, where: LinkWhereInput): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput): BatchPayload!
   updateManyVotes(data: VoteUpdateInput!, where: VoteWhereInput): BatchPayload!
+  updateManyNotificationses(data: NotificationsUpdateInput!, where: NotificationsWhereInput): BatchPayload!
   updateManyNotifications(data: NotificationUpdateInput!, where: NotificationWhereInput): BatchPayload!
+  updateManyNotificationDetails(data: NotificationDetailUpdateInput!, where: NotificationDetailWhereInput): BatchPayload!
   deleteManyLinks(where: LinkWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
   deleteManyVotes(where: VoteWhereInput): BatchPayload!
+  deleteManyNotificationses(where: NotificationsWhereInput): BatchPayload!
   deleteManyNotifications(where: NotificationWhereInput): BatchPayload!
+  deleteManyNotificationDetails(where: NotificationDetailWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -376,11 +391,9 @@ interface Node {
 type Notification implements Node {
   id: ID!
   memberNumber: String!
-  description: String!
-  status: String!
-  action: String!
-  priority: String!
-  readOn: DateTime
+  status: StatusEnum!
+  readOn: String
+  details: NotificationDetail!
 }
 
 """A connection to a list of items."""
@@ -395,11 +408,286 @@ type NotificationConnection {
 
 input NotificationCreateInput {
   memberNumber: String!
+  status: StatusEnum!
+  readOn: String
+  details: NotificationDetailCreateOneInput!
+}
+
+input NotificationCreateManyInput {
+  create: [NotificationCreateInput!]
+  connect: [NotificationWhereUniqueInput!]
+}
+
+type NotificationDetail {
+  code: String!
   description: String!
-  status: String!
-  action: String!
-  priority: String!
-  readOn: DateTime
+  action: String
+  priority: PriorityEnum
+}
+
+"""A connection to a list of items."""
+type NotificationDetailConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [NotificationDetailEdge]!
+  aggregate: AggregateNotificationDetail!
+}
+
+input NotificationDetailCreateInput {
+  code: String!
+  description: String!
+  action: String
+  priority: PriorityEnum
+}
+
+input NotificationDetailCreateOneInput {
+  create: NotificationDetailCreateInput
+  connect: NotificationDetailWhereUniqueInput
+}
+
+"""An edge in a connection."""
+type NotificationDetailEdge {
+  """The item at the end of the edge."""
+  node: NotificationDetail!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum NotificationDetailOrderByInput {
+  code_ASC
+  code_DESC
+  description_ASC
+  description_DESC
+  action_ASC
+  action_DESC
+  priority_ASC
+  priority_DESC
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type NotificationDetailPreviousValues {
+  code: String!
+  description: String!
+  action: String
+  priority: PriorityEnum
+}
+
+type NotificationDetailSubscriptionPayload {
+  mutation: MutationType!
+  node: NotificationDetail
+  updatedFields: [String!]
+  previousValues: NotificationDetailPreviousValues
+}
+
+input NotificationDetailSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [NotificationDetailSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [NotificationDetailSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [NotificationDetailSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NotificationDetailWhereInput
+}
+
+input NotificationDetailUpdateDataInput {
+  code: String
+  description: String
+  action: String
+  priority: PriorityEnum
+}
+
+input NotificationDetailUpdateInput {
+  code: String
+  description: String
+  action: String
+  priority: PriorityEnum
+}
+
+input NotificationDetailUpdateOneRequiredInput {
+  create: NotificationDetailCreateInput
+  connect: NotificationDetailWhereUniqueInput
+  update: NotificationDetailUpdateDataInput
+  upsert: NotificationDetailUpsertNestedInput
+}
+
+input NotificationDetailUpsertNestedInput {
+  update: NotificationDetailUpdateDataInput!
+  create: NotificationDetailCreateInput!
+}
+
+input NotificationDetailWhereInput {
+  """Logical AND on all given filters."""
+  AND: [NotificationDetailWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [NotificationDetailWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [NotificationDetailWhereInput!]
+  code: String
+
+  """All values that are not equal to given value."""
+  code_not: String
+
+  """All values that are contained in given list."""
+  code_in: [String!]
+
+  """All values that are not contained in given list."""
+  code_not_in: [String!]
+
+  """All values less than the given value."""
+  code_lt: String
+
+  """All values less than or equal the given value."""
+  code_lte: String
+
+  """All values greater than the given value."""
+  code_gt: String
+
+  """All values greater than or equal the given value."""
+  code_gte: String
+
+  """All values containing the given string."""
+  code_contains: String
+
+  """All values not containing the given string."""
+  code_not_contains: String
+
+  """All values starting with the given string."""
+  code_starts_with: String
+
+  """All values not starting with the given string."""
+  code_not_starts_with: String
+
+  """All values ending with the given string."""
+  code_ends_with: String
+
+  """All values not ending with the given string."""
+  code_not_ends_with: String
+  description: String
+
+  """All values that are not equal to given value."""
+  description_not: String
+
+  """All values that are contained in given list."""
+  description_in: [String!]
+
+  """All values that are not contained in given list."""
+  description_not_in: [String!]
+
+  """All values less than the given value."""
+  description_lt: String
+
+  """All values less than or equal the given value."""
+  description_lte: String
+
+  """All values greater than the given value."""
+  description_gt: String
+
+  """All values greater than or equal the given value."""
+  description_gte: String
+
+  """All values containing the given string."""
+  description_contains: String
+
+  """All values not containing the given string."""
+  description_not_contains: String
+
+  """All values starting with the given string."""
+  description_starts_with: String
+
+  """All values not starting with the given string."""
+  description_not_starts_with: String
+
+  """All values ending with the given string."""
+  description_ends_with: String
+
+  """All values not ending with the given string."""
+  description_not_ends_with: String
+  action: String
+
+  """All values that are not equal to given value."""
+  action_not: String
+
+  """All values that are contained in given list."""
+  action_in: [String!]
+
+  """All values that are not contained in given list."""
+  action_not_in: [String!]
+
+  """All values less than the given value."""
+  action_lt: String
+
+  """All values less than or equal the given value."""
+  action_lte: String
+
+  """All values greater than the given value."""
+  action_gt: String
+
+  """All values greater than or equal the given value."""
+  action_gte: String
+
+  """All values containing the given string."""
+  action_contains: String
+
+  """All values not containing the given string."""
+  action_not_contains: String
+
+  """All values starting with the given string."""
+  action_starts_with: String
+
+  """All values not starting with the given string."""
+  action_not_starts_with: String
+
+  """All values ending with the given string."""
+  action_ends_with: String
+
+  """All values not ending with the given string."""
+  action_not_ends_with: String
+  priority: PriorityEnum
+
+  """All values that are not equal to given value."""
+  priority_not: PriorityEnum
+
+  """All values that are contained in given list."""
+  priority_in: [PriorityEnum!]
+
+  """All values that are not contained in given list."""
+  priority_not_in: [PriorityEnum!]
+}
+
+input NotificationDetailWhereUniqueInput {
+  code: String
 }
 
 """An edge in a connection."""
@@ -416,14 +704,8 @@ enum NotificationOrderByInput {
   id_DESC
   memberNumber_ASC
   memberNumber_DESC
-  description_ASC
-  description_DESC
   status_ASC
   status_DESC
-  action_ASC
-  action_DESC
-  priority_ASC
-  priority_DESC
   readOn_ASC
   readOn_DESC
   updatedAt_ASC
@@ -435,11 +717,91 @@ enum NotificationOrderByInput {
 type NotificationPreviousValues {
   id: ID!
   memberNumber: String!
-  description: String!
-  status: String!
-  action: String!
-  priority: String!
-  readOn: DateTime
+  status: StatusEnum!
+  readOn: String
+}
+
+type Notifications {
+  notifications(where: NotificationWhereInput, orderBy: NotificationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Notification!]
+  nextToken: String
+}
+
+"""A connection to a list of items."""
+type NotificationsConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [NotificationsEdge]!
+  aggregate: AggregateNotifications!
+}
+
+input NotificationsCreateInput {
+  nextToken: String
+  notifications: NotificationCreateManyInput
+}
+
+"""An edge in a connection."""
+type NotificationsEdge {
+  """The item at the end of the edge."""
+  node: Notifications!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum NotificationsOrderByInput {
+  nextToken_ASC
+  nextToken_DESC
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type NotificationsPreviousValues {
+  nextToken: String
+}
+
+type NotificationsSubscriptionPayload {
+  mutation: MutationType!
+  node: Notifications
+  updatedFields: [String!]
+  previousValues: NotificationsPreviousValues
+}
+
+input NotificationsSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [NotificationsSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [NotificationsSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [NotificationsSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: NotificationsWhereInput
 }
 
 type NotificationSubscriptionPayload {
@@ -481,13 +843,97 @@ input NotificationSubscriptionWhereInput {
   node: NotificationWhereInput
 }
 
+input NotificationsUpdateInput {
+  nextToken: String
+  notifications: NotificationUpdateManyInput
+}
+
+input NotificationsWhereInput {
+  """Logical AND on all given filters."""
+  AND: [NotificationsWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [NotificationsWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [NotificationsWhereInput!]
+  nextToken: String
+
+  """All values that are not equal to given value."""
+  nextToken_not: String
+
+  """All values that are contained in given list."""
+  nextToken_in: [String!]
+
+  """All values that are not contained in given list."""
+  nextToken_not_in: [String!]
+
+  """All values less than the given value."""
+  nextToken_lt: String
+
+  """All values less than or equal the given value."""
+  nextToken_lte: String
+
+  """All values greater than the given value."""
+  nextToken_gt: String
+
+  """All values greater than or equal the given value."""
+  nextToken_gte: String
+
+  """All values containing the given string."""
+  nextToken_contains: String
+
+  """All values not containing the given string."""
+  nextToken_not_contains: String
+
+  """All values starting with the given string."""
+  nextToken_starts_with: String
+
+  """All values not starting with the given string."""
+  nextToken_not_starts_with: String
+
+  """All values ending with the given string."""
+  nextToken_ends_with: String
+
+  """All values not ending with the given string."""
+  nextToken_not_ends_with: String
+  notifications_every: NotificationWhereInput
+  notifications_some: NotificationWhereInput
+  notifications_none: NotificationWhereInput
+}
+
+input NotificationUpdateDataInput {
+  memberNumber: String
+  status: StatusEnum
+  readOn: String
+  details: NotificationDetailUpdateOneRequiredInput
+}
+
 input NotificationUpdateInput {
   memberNumber: String
-  description: String
-  status: String
-  action: String
-  priority: String
-  readOn: DateTime
+  status: StatusEnum
+  readOn: String
+  details: NotificationDetailUpdateOneRequiredInput
+}
+
+input NotificationUpdateManyInput {
+  create: [NotificationCreateInput!]
+  connect: [NotificationWhereUniqueInput!]
+  disconnect: [NotificationWhereUniqueInput!]
+  delete: [NotificationWhereUniqueInput!]
+  update: [NotificationUpdateWithWhereUniqueNestedInput!]
+  upsert: [NotificationUpsertWithWhereUniqueNestedInput!]
+}
+
+input NotificationUpdateWithWhereUniqueNestedInput {
+  where: NotificationWhereUniqueInput!
+  data: NotificationUpdateDataInput!
+}
+
+input NotificationUpsertWithWhereUniqueNestedInput {
+  where: NotificationWhereUniqueInput!
+  update: NotificationUpdateDataInput!
+  create: NotificationCreateInput!
 }
 
 input NotificationWhereInput {
@@ -579,188 +1025,57 @@ input NotificationWhereInput {
 
   """All values not ending with the given string."""
   memberNumber_not_ends_with: String
-  description: String
+  status: StatusEnum
 
   """All values that are not equal to given value."""
-  description_not: String
+  status_not: StatusEnum
 
   """All values that are contained in given list."""
-  description_in: [String!]
+  status_in: [StatusEnum!]
 
   """All values that are not contained in given list."""
-  description_not_in: [String!]
+  status_not_in: [StatusEnum!]
+  readOn: String
+
+  """All values that are not equal to given value."""
+  readOn_not: String
+
+  """All values that are contained in given list."""
+  readOn_in: [String!]
+
+  """All values that are not contained in given list."""
+  readOn_not_in: [String!]
 
   """All values less than the given value."""
-  description_lt: String
+  readOn_lt: String
 
   """All values less than or equal the given value."""
-  description_lte: String
+  readOn_lte: String
 
   """All values greater than the given value."""
-  description_gt: String
+  readOn_gt: String
 
   """All values greater than or equal the given value."""
-  description_gte: String
+  readOn_gte: String
 
   """All values containing the given string."""
-  description_contains: String
+  readOn_contains: String
 
   """All values not containing the given string."""
-  description_not_contains: String
+  readOn_not_contains: String
 
   """All values starting with the given string."""
-  description_starts_with: String
+  readOn_starts_with: String
 
   """All values not starting with the given string."""
-  description_not_starts_with: String
+  readOn_not_starts_with: String
 
   """All values ending with the given string."""
-  description_ends_with: String
+  readOn_ends_with: String
 
   """All values not ending with the given string."""
-  description_not_ends_with: String
-  status: String
-
-  """All values that are not equal to given value."""
-  status_not: String
-
-  """All values that are contained in given list."""
-  status_in: [String!]
-
-  """All values that are not contained in given list."""
-  status_not_in: [String!]
-
-  """All values less than the given value."""
-  status_lt: String
-
-  """All values less than or equal the given value."""
-  status_lte: String
-
-  """All values greater than the given value."""
-  status_gt: String
-
-  """All values greater than or equal the given value."""
-  status_gte: String
-
-  """All values containing the given string."""
-  status_contains: String
-
-  """All values not containing the given string."""
-  status_not_contains: String
-
-  """All values starting with the given string."""
-  status_starts_with: String
-
-  """All values not starting with the given string."""
-  status_not_starts_with: String
-
-  """All values ending with the given string."""
-  status_ends_with: String
-
-  """All values not ending with the given string."""
-  status_not_ends_with: String
-  action: String
-
-  """All values that are not equal to given value."""
-  action_not: String
-
-  """All values that are contained in given list."""
-  action_in: [String!]
-
-  """All values that are not contained in given list."""
-  action_not_in: [String!]
-
-  """All values less than the given value."""
-  action_lt: String
-
-  """All values less than or equal the given value."""
-  action_lte: String
-
-  """All values greater than the given value."""
-  action_gt: String
-
-  """All values greater than or equal the given value."""
-  action_gte: String
-
-  """All values containing the given string."""
-  action_contains: String
-
-  """All values not containing the given string."""
-  action_not_contains: String
-
-  """All values starting with the given string."""
-  action_starts_with: String
-
-  """All values not starting with the given string."""
-  action_not_starts_with: String
-
-  """All values ending with the given string."""
-  action_ends_with: String
-
-  """All values not ending with the given string."""
-  action_not_ends_with: String
-  priority: String
-
-  """All values that are not equal to given value."""
-  priority_not: String
-
-  """All values that are contained in given list."""
-  priority_in: [String!]
-
-  """All values that are not contained in given list."""
-  priority_not_in: [String!]
-
-  """All values less than the given value."""
-  priority_lt: String
-
-  """All values less than or equal the given value."""
-  priority_lte: String
-
-  """All values greater than the given value."""
-  priority_gt: String
-
-  """All values greater than or equal the given value."""
-  priority_gte: String
-
-  """All values containing the given string."""
-  priority_contains: String
-
-  """All values not containing the given string."""
-  priority_not_contains: String
-
-  """All values starting with the given string."""
-  priority_starts_with: String
-
-  """All values not starting with the given string."""
-  priority_not_starts_with: String
-
-  """All values ending with the given string."""
-  priority_ends_with: String
-
-  """All values not ending with the given string."""
-  priority_not_ends_with: String
-  readOn: DateTime
-
-  """All values that are not equal to given value."""
-  readOn_not: DateTime
-
-  """All values that are contained in given list."""
-  readOn_in: [DateTime!]
-
-  """All values that are not contained in given list."""
-  readOn_not_in: [DateTime!]
-
-  """All values less than the given value."""
-  readOn_lt: DateTime
-
-  """All values less than or equal the given value."""
-  readOn_lte: DateTime
-
-  """All values greater than the given value."""
-  readOn_gt: DateTime
-
-  """All values greater than or equal the given value."""
-  readOn_gte: DateTime
+  readOn_not_ends_with: String
+  details: NotificationDetailWhereInput
 }
 
 input NotificationWhereUniqueInput {
@@ -782,19 +1097,30 @@ type PageInfo {
   endCursor: String
 }
 
+enum PriorityEnum {
+  LOW
+  MEDIUM
+  HIGH
+}
+
 type Query {
   links(where: LinkWhereInput, orderBy: LinkOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Link]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   votes(where: VoteWhereInput, orderBy: VoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Vote]!
+  notificationses(where: NotificationsWhereInput, orderBy: NotificationsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Notifications]!
   notifications(where: NotificationWhereInput, orderBy: NotificationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Notification]!
+  notificationDetails(where: NotificationDetailWhereInput, orderBy: NotificationDetailOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [NotificationDetail]!
   link(where: LinkWhereUniqueInput!): Link
   user(where: UserWhereUniqueInput!): User
   vote(where: VoteWhereUniqueInput!): Vote
   notification(where: NotificationWhereUniqueInput!): Notification
+  notificationDetail(where: NotificationDetailWhereUniqueInput!): NotificationDetail
   linksConnection(where: LinkWhereInput, orderBy: LinkOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LinkConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
   votesConnection(where: VoteWhereInput, orderBy: VoteOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): VoteConnection!
+  notificationsesConnection(where: NotificationsWhereInput, orderBy: NotificationsOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NotificationsConnection!
   notificationsConnection(where: NotificationWhereInput, orderBy: NotificationOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NotificationConnection!
+  notificationDetailsConnection(where: NotificationDetailWhereInput, orderBy: NotificationDetailOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): NotificationDetailConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -803,11 +1129,18 @@ type Query {
   ): Node
 }
 
+enum StatusEnum {
+  NEW
+  HISTORY
+}
+
 type Subscription {
   link(where: LinkSubscriptionWhereInput): LinkSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
   vote(where: VoteSubscriptionWhereInput): VoteSubscriptionPayload
+  notifications(where: NotificationsSubscriptionWhereInput): NotificationsSubscriptionPayload
   notification(where: NotificationSubscriptionWhereInput): NotificationSubscriptionPayload
+  notificationDetail(where: NotificationDetailSubscriptionWhereInput): NotificationDetailSubscriptionPayload
 }
 
 type User implements Node {
@@ -1163,8 +1496,8 @@ input UserWhereUniqueInput {
 
 type Vote implements Node {
   id: ID!
-  link(where: LinkWhereInput): Link!
-  user(where: UserWhereInput): User!
+  link: Link!
+  user: User!
 }
 
 """A connection to a list of items."""
