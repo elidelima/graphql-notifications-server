@@ -1,10 +1,11 @@
-const { GraphQLServer } = require('graphql-yoga')
+const { GraphQLServer, PubSub } = require('graphql-yoga')
 const { Prisma } = require('prisma-binding')
 const Query = require('./resolvers/Query')
 const Mutation = require('./resolvers/Mutation')
 const AuthPayload = require('./resolvers/AuthPayload')
 const Subscription = require('./resolvers/Subscription')
 const Feed = require('./resolvers/Feed')
+//const { PubSub, withFilter } = require('graphql-subscriptions')
 
 /*
 let links = [{
@@ -21,7 +22,10 @@ const resolvers = {
     Mutation,
     AuthPayload,
     Subscription,
-    Feed
+    Feed,
+    Counter: {
+        countStr: counter => `Current count: ${counter.count}`,
+    },
 }
 
 const server = new GraphQLServer({
@@ -37,7 +41,9 @@ const server = new GraphQLServer({
             endpoint: 'https://eu1.prisma.sh/eli-lima/database/dev',
             secret: 'mysecret123',
             debug: true,
-        })
+        }),
+        pubsub: new PubSub(),
+        //withFilter: withFilter
     }),
 })
 

@@ -58,7 +58,7 @@ function post(parent, args, context, info) {
 
 async function notificateMember(parent, args, context, info) {
 
-    return await context.db.mutation.createNotification(
+    const newNotification = await context.db.mutation.createNotification(
         {
             data: {
                 memberNumber: args.memberNumber,
@@ -68,6 +68,15 @@ async function notificateMember(parent, args, context, info) {
         },
         info,
     )
+
+    //context.pubsub.publish('newNotification', { newNotification: newNotification,
+    //    memberNumber: args.memberNumber});
+    console.log("Shoud publish newNotification: ");
+    console.log({newNotification});
+    context.pubsub.publish('new_notification', { newNotification: newNotification});
+    
+
+    return newNotification;
 }
 
 async function createNotificationDetail(parent, args, context, info) {
