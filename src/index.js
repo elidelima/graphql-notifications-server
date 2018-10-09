@@ -4,25 +4,18 @@ const Query = require('./resolvers/Query')
 const Mutation = require('./resolvers/Mutation')
 const AuthPayload = require('./resolvers/AuthPayload')
 const Subscription = require('./resolvers/Subscription')
-const Feed = require('./resolvers/Feed')
-//const { PubSub, withFilter } = require('graphql-subscriptions')
-
-/*
-let links = [{
-    id: 'link-0',
-    url: 'www.howtographql.com',
-    description: 'Fullstack tutorial for GraphQL'
-}]
-*/
-
-//let idCount = links.length
+const NotificationDetails=require('./resolvers/NotificationDetails')
+const Notifications =  require('./resolvers/Notifications')
+const NotificationResponse =  require('./resolvers/NotificationResponse')
 
 const resolvers = {
     Query,
     Mutation,
     AuthPayload,
     Subscription,
-    Feed,
+    NotificationDetails,
+    NotificationResponse,
+    Notifications,
     Counter: {
         countStr: counter => `Current count: ${counter.count}`,
     },
@@ -38,7 +31,7 @@ const server = new GraphQLServer({
         ...req,
         db: new Prisma({
             typeDefs: 'src/generated/prisma.graphql',
-            endpoint: 'https://eu1.prisma.sh/eli-lima/database/dev',
+            endpoint: 'https://us1.prisma.sh/jonathasruiz1-7d2d8c/database/dev',
             secret: 'mysecret123',
             debug: true,
         }),

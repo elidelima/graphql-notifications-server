@@ -1,56 +1,59 @@
-/*function feed(root, args, context, info) {
-    let response = context.db.query.links({}, info);
-    response.then(data => {
-        data[0].url = "Brubles 1"
-    })
-    return response;
-}*/
-
 const { getUserId } = require('../utils')
 
-async function feed(parent, args, context, info) {
-    
-    //const userId = getUserId(context)
-    
-    const where = args.filter 
-        ? { 
-            OR : [
-                { url_contains: args.fiter },
-                { description_contains: args.filter }
-            ],
-        } : {}
-    
-    const queriedLinks = await context.db.query.links(
-        { where, skip: args.skip, first: args.first, orderBy: args.orderBy },
-        `{ id }`,
-    )
+async function notifications(parent, args, context, info){
+    const where={
+        situation:'NEW'
+    }
+    const countSelectionSet=`{
+        aggregate{
+            count
+        }
+    }`
 
-    const countSelectionSet = `{ aggregate { count } }`
-
-    const linksConnection = await context.db.query.linksConnection({ where, skip: args.skip, first: args.first }, countSelectionSet)
+    const notificationsConnection= await context.db.query.notificationsConnection({where},countSelectionSet)
 
     return {
-        count: linksConnection.aggregate.count,
-        linkIds: queriedLinks.map(link => link.id),
+            hasMoreNewNotification: false,
+            newNotificationCount: notificationsConnection.aggregate.count
     }
-}
 
-function notifications(parent, args, context, info){
+    //const member="40802112"
 
-    const where = 
-        {
-            memberNumber: args.memberNumber,
-            status: args.status,
-        }
-    return context.db.query.notifications({ where }, info);
+    // const where_1 = 
+    //     {
+    //         memberNumber: member, //grab from header
+    //         situation: `NEW`, 
+    //     }
+
+    // const where_2 = 
+    //     {
+    //         memberNumber: member, //grab from header
+    //         situation: `HISTORY`, 
+    //     }
+
+    // const notificationsNew= await context.db.query.notifications({ where:where_1, skip:args.limitNew }, info);
+    // const notificationsHistory= await context.db.query.notifications({ where:where_2, skip: args.limitHistory }, info);
+
+    // return {
+    //     notificationsNew,
+    //     notificationsHistory
+    // }
 }
 
 function allNotifications(parent, args, context, info){
     return context.db.query.notifications({}, info);
 }
 
+
+ async function allNotificationsDetails(parent, args, context, info){
+     
+    return {
+        nextToken:"akshjfkujashdkfjhasdf"
+    }
+}
+
 module.exports = {
-    feed,
     notifications,
     allNotifications,
+    allNotificationsDetails
 }

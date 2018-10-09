@@ -1,38 +1,28 @@
-# import LinkSubscriptionPayload, Vote, VoteSubscriptionPayload, LinkOrderByInput, Notification from "./generated/prisma.graphql"
-# import StatusEnum, PriorityEnum, NotificationDetail, NotificationSubscriptionPayload from "./generated/prisma.graphql"
+# import Notification,Notifications,NotificationDetails from "./generated/prisma.graphql"
+# import SituationEnum,PriorityEnum,NotificationDetail,NotificationSubscriptionPayload from "./generated/prisma.graphql"
+# import createNotification from "./generated/prisma.graphql"
 
 type Query {
     info: String!
-    feed(filter: String, skip: Int, first: Int, orderBy: LinkOrderByInput): Feed!
-    link(id: ID!): Link
-    notifications(memberNumber: String!, status: Status): [Notification!]!
-    allNotifications : [Notification!]!
+    notifications(limitNew: Int, limitHistory: Int, filter: String, nextTokenNew: String, nextTokenHistory: String):NotificationResponse 
+    allNotifications: [Notification!]!
+    allNotificationsDetails: NotificationDetails
 }
 
 type Mutation {
-    post(url: String!, description: String!): Link!
     signup(email: String!, password: String!, name: String!): AuthPayload
     login(email: String!, password: String!): AuthPayload
-    vote(linkId: ID!): Vote
-    notificateMember(memberNumber: String!, status: StatusEnum!, code: String!): Notification!
+    createNotification(memberNumber: String!, status: SituationEnum!, code: String!): Notification!
     createNotificationDetail(code: String!, description: String!, action: String!, priority: PriorityEnum!): NotificationDetail!
-    moveNotificationToHistory(id: ID!): Notification!
+    moveNotificationToHistory(memberNumber: String!, notificationIds:[String!]!): [Notification]
     deleteAllNotifications(memberNumber: String): String!
 }
 
 type Subscription {
-    newLink: LinkSubscriptionPayload
-    newVote: VoteSubscriptionPayload
     newNotification(memberNumber: String!): NotificationSubscriptionPayload
     counter: Counter!
 }
 
-type Link {
-    id: ID!
-    description: String!
-    url: String!
-    postedBy: User
-}
 
 type AuthPayload {
     token: String
@@ -43,13 +33,8 @@ type User {
     id: ID!
     name: String!
     email: String!
-    links: [Link!]!
 }
 
-type Feed {
-    links: [Link!]!
-    count: Int
-}
 
 enum Status {
     NEW
@@ -65,4 +50,22 @@ enum Priority {
 type Counter {
     count: Int!
     countStr: String
+}
+
+
+type Notifications {
+	notifications: [Notification!]!
+    nextToken: String
+}
+
+type NotificationResponse {
+    notificationsNew: Notifications
+    notificationsHistory: Notifications
+    newNotificationCount: Int
+    hasMoreNewNotification: Boolean
+}
+
+type NotificationDetails {
+    notificationDetails: [NotificationDetail!]!
+    nextToken: String
 }

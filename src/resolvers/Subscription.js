@@ -1,28 +1,3 @@
-function newLinkSubscribe (parent, args, context, info) {
-    return context.db.subscription.link(
-        { where: { mutation_in: ['CREATED'] } },
-        info,
-    )
-}
-
-function newVoteSubscribe (parent, args, context, info) {
-    return context.db.subscription.vote(
-        { where: {mutation_in: ['CREATED']}},
-        info
-    )
-}
-
-/*
-function newNotificationSubscribe (parent, args, context, info) {
-     const listener = withFilter(
-        () => context.pubsub.asyncIterator('newNotification'),
-            (payload, variables) => {
-            return payload.memberNumber === args.memberNumber;
-            }
-    )
-
-    return listener;
-}*/
 
 function newNotificationSubscribe (parent, args, context, info) {
     return context.db.subscription.notification(
@@ -36,21 +11,12 @@ function newNotificationSubscribe (parent, args, context, info) {
     )
 }
 
-const newLink = {
-    subscribe: newLinkSubscribe
-}
-
-const newVote = {
-    subscribe: newVoteSubscribe
-}
 
 const newNotification = {
     subscribe: newNotificationSubscribe
 }
 
 module.exports = {
-    newLink,
-    newVote,
     newNotification,
     counter: {
         subscribe: (parent, args, { pubsub }) => {

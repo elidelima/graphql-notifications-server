@@ -1,0 +1,68 @@
+enum SituationEnum{
+	NEW
+	HISTORY
+}
+
+enum PriorityEnum {
+	LOW
+	MEDIUM
+	HIGH
+}
+
+type NotificationDetail {
+	id: String!
+		description: String!
+			action: String
+			priority: PriorityEnum
+			lastUpdated: String
+}
+
+type Notification {
+	id: ID!
+		memberNumber: String!
+			createdOn: String!
+				situation: SituationEnum!
+					detail: NotificationDetail
+					readOn: String
+					timeToLive: String!
+						lastUpdated: String!
+}
+
+type Notifications {
+	notifications: [Notification!]!
+					nextToken: String
+					}
+
+					type NotificationDetails {
+					notificationDetails: [NotificationDetail!]!
+		nextToken: String
+}
+
+	type NotificationResponse {
+		notificationsNew: Notifications
+		notificationsHistory: Notifications
+		newNotificationCount: Int
+		hasMoreNewNotification: Boolean
+	}
+
+	type Query {
+		notifications(limitNew: Int, limitHistory: Int, filter: String, nextTokenNew: String, nextTokenHistory: String):NotificationResponse
+	}
+
+	type Mutation {
+		createNotification(memberNumber: String!, notificationDetailId: String!,notificationDate: String!,timeToLive:Int): Notification
+		moveToHistory(memberNumber: String!, notificationIds:[String!]!): [Notification]
+	}
+
+	type Subscription {
+		newNotification(memberNumber: String!): Notification
+		@aws_subscribe(mutations: ["createNotification"])
+		historyNotifications: [Notification]
+		@aws_subscribe(mutations: ["moveToHistory"])
+	}
+
+	schema {
+		query: Query
+		mutation: Mutation
+		subscription: Subscription
+	} (edi
