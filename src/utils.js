@@ -1,22 +1,20 @@
 const jwt = require('jsonwebtoken')
 const APP_SECRET = 'GraphQL-is-aw3some'
 
-function getUserId(context) {
-    const Authorization = context.request.get('Authorization')
-    if (Authorization) {
-        const token = Authorization.replace('Bearer ', '')
+function getMemberNumber(context) {
+    const MemberNumber = context.request.get('MemberNumber')
+    if (MemberNumber) {
         try {
-            const { userId } = jwt.verify(token, APP_SECRET)
-            return userId
+            return MemberNumber
         } catch (e) {
             throw new Error('nao nao nao')
         }
     }
 
-    throw new Error('Not authenticated')
+    throw new Error('Missing member number')
 }
 
 module.exports = {
     APP_SECRET,
-    getUserId,
+    getMemberNumber,
 }

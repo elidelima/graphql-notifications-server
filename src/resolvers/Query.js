@@ -1,8 +1,12 @@
-const { getUserId } = require('../utils')
+const { getMemberNumber } = require('../utils')
 
 async function notifications(parent, args, context, info){
+
+    const memberNumber = getMemberNumber(context)
+
     const where={
-        situation:'NEW'
+        situation:'NEW',
+        memberNumber 
     }
     const countSelectionSet=`{
         aggregate{
