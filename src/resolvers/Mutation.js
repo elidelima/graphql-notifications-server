@@ -91,10 +91,30 @@ async function deleteAllNotifications(parent, args, context, info) {
 }
 
 async function moveNotificationToHistory(parent, args, context, info) {
-    console.log({args});
+    const where={
+        id_in:args.notificationIds
+    }
+
+    const data={
+        situation:'HISTORY'
+    }
+    
+    for(let i=0;i<args.notificationIds.length;i++){
+        let updateCount= await context.db.mutation.updateNotification({where:{id:args.notificationIds[i]},  data})
+    }
+    
+    const updatedNotifications= await context.db.query.notifications({where})
+    
+    return updatedNotifications
 }
 
-
+async function updateAllNotifications(parent, args, context, info){
+    const data={
+        situation:'NEW'
+    }
+    const response= await context.db.mutation.updateManyNotifications({ data })
+    return `${response.count} registers updated.`;
+}
 
 module.exports = {
     signup,
@@ -103,4 +123,5 @@ module.exports = {
     createNotification,
     moveNotificationToHistory,
     deleteAllNotifications,
+    updateAllNotifications
 }

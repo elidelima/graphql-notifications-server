@@ -16,10 +16,12 @@ type Mutation {
     createNotificationDetail(code: String!, description: String!, action: String!, priority: PriorityEnum!): NotificationDetail!
     moveNotificationToHistory(memberNumber: String!, notificationIds:[String!]!): [Notification]
     deleteAllNotifications(memberNumber: String): String!
+    updateAllNotifications(memberNumber: String): String!
 }
 
 type Subscription {
     newNotification(memberNumber: String!): NotificationSubscriptionPayload
+    historyNotifications(memberNumber: String!): NotificationSubscriptionPayload
     counter: Counter!
 }
 
