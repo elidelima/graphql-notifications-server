@@ -1,6 +1,8 @@
 # The HTTP endpoint for your Prisma API
 #endpoint: ''
-endpoint: https://us1.prisma.sh/jonathasruiz1-7d2d8c/database/dev
+#endpoint: https://us1.prisma.sh/jonathasruiz1-7d2d8c/database/dev
+endpoint: https://eu1.prisma.sh/eli-lima/database/dev
+
 
 
 # Points to the file that holds your data model
